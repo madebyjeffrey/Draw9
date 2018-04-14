@@ -18,6 +18,8 @@
     "build": "webpack",
     "watch": "webpack -w",
     "dev": "webpack-dev-server"
+  },
+  "dependencies": {
+    "rxjs": "^5.5.10"
   }
-
 }
