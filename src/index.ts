@@ -1,7 +1,6 @@
 import { Kernel } from "./kernel";
 import { Line, PartialLine } from "./primitives";
-import { fromEvent } from "rxjs/observable/fromEvent";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
+import {BehaviorSubject, filter, fromEvent, map} from "rxjs";
 
 
 class App {
@@ -22,26 +21,26 @@ class App {
 
         this.kernel.watch(this.currentObject$);
 
-        fromEvent<MouseEvent>(this.canvas, 'mousedown')
-            .filter(e => e.button === 0)
-            .map(e => <[number, number]>[e.offsetX, e.offsetY])
-            .map(pos => new PartialLine(pos, pos))
+        fromEvent<MouseEvent>(this.canvas, 'mousedown').pipe(
+            filter(e => e.button === 0),
+            map(e => <[number, number]>[e.offsetX, e.offsetY]),
+            map(pos => new PartialLine(pos, pos)))
             .subscribe(line => this.currentObject$.next(line));
 
-        fromEvent<MouseEvent>(this.canvas, "mousemove")
-            .filter(() => this.currentObject$.value !== null)
-            .map(e => <[number, number]>[e.offsetX, e.offsetY])
-            .map(pos => new PartialLine(this.currentObject$.value.head, pos))
+        fromEvent<MouseEvent>(this.canvas, "mousemove").pipe(
+            filter(() => this.currentObject$.value !== null),
+            map(e => <[number, number]>[e.offsetX, e.offsetY]),
+            map(pos => new PartialLine(this.currentObject$.value.head, pos)))
             .subscribe(line => this.currentObject$.next(line));
 
-        fromEvent<MouseEvent>(this.canvas, "mouseup")
-            .filter(() => this.currentObject$.value !== null)
-            .map(e => <[number, number]>[e.offsetX, e.offsetY])
-            .map(pos => {
+        fromEvent<MouseEvent>(this.canvas, "mouseup").pipe(
+            filter(() => this.currentObject$.value !== null),
+            map(e => <[number, number]>[e.offsetX, e.offsetY]),
+            map(pos => {
                 const line = this.currentObject$.value.toLine();
                 line.tail = pos;
                 return line;
-            })
+            }))
             .subscribe(line => {
                 this.currentObject$.next(null);
                 this.kernel.addPrimitive(line);

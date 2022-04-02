@@ -1,7 +1,6 @@
 
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs";
 
-import "./rxjs.imports";
 import { IRenderable } from "./primitives";
 
 /**
@@ -37,13 +36,14 @@ export class Kernel {
     progress: IRenderable = null;
 
     watch(primitive$: Observable<IRenderable>) {
-        primitive$.subscribe(p => {
+        primitive$.subscribe({
+            next: (p: IRenderable) => {
             this.progress = p;
-        }, err => {
+        }, error: (_err: unknown) => {
             // error?
-        }, () => {
+        }, complete: () => {
             this.progress = null;
-        });
+        }});
     }
 
 }
